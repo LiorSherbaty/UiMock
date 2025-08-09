@@ -1,0 +1,107 @@
+﻿<Window x:Class="UiTesterDemo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UiTesterDemo" 
+        xmlns:viewmodels="clr-namespace:UiTesterDemo.ViewModels" 
+        xmlns:converters="clr-namespace:UiTesterDemo.Converters" 
+        d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
+        mc:Ignorable="d"
+        Title="WPF Mocking Demo" Height="450" Width="400"
+        WindowStartupLocation="CenterScreen"
+        Background="#F0F0F0">
+
+    <Window.Resources>
+        <!-- Simple converter to collapse elements when a boolean is false -->
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:NotConverter x:Key="NotConverter" />
+        
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#005A9E"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="Gray"/>
+                    <Setter Property="Opacity" Value="0.7"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Main Display -->
+        <Border Grid.Row="0" Background="White" CornerRadius="10" Padding="20" Margin="0,0,0,20">
+            <StackPanel HorizontalAlignment="Center">
+                <TextBlock Text="Current Temperature" FontSize="20" Foreground="Gray"/>
+                <TextBlock Text="{Binding Temperature, StringFormat={}{0:F1}°C}"
+                           Foreground="{Binding TemperatureColor}"
+                           FontSize="72"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           Margin="0,10,0,0"/>
+
+                <Button Content="Refresh Weather" 
+                        Command="{Binding LoadWeatherCommand}" 
+                        IsEnabled="{Binding IsLoading, Converter={StaticResource NotConverter}}"
+                        Margin="0,20,0,0"/>
+                <TextBlock Text="Loading..." 
+                           Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"
+                           HorizontalAlignment="Center"
+                           Foreground="Gray"
+                           Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- UI Tester Panel -->
+        <Border Grid.Row="2" 
+                Padding="15"
+                Background="#FFFBE6"
+                BorderBrush="#FFD699"
+                BorderThickness="1"
+                CornerRadius="10"
+                Visibility="{Binding IsMockMode, Converter={StaticResource BoolToVis}}">
+            <StackPanel>
+                <TextBlock Text="UI TESTER (Mock Mode)" 
+                           FontWeight="Bold" 
+                           FontSize="16" 
+                           Foreground="#D9534F" 
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,10"/>
+                <TextBlock Text="Use these buttons to test the UI color logic:"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           Margin="0,0,0,10"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="Set Hot (>30°)" Command="{Binding SetHotTempCommand}" Background="#E74C3C"/>
+                    <Button Content="Set Warm (10-30°)" Command="{Binding SetWarmTempCommand}" Background="#F39C12"/>
+                    <Button Content="Set Cold (&lt;10°)" Command="{Binding SetColdTempCommand}" Background="#3498DB"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
